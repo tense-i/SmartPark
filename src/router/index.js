@@ -42,9 +42,20 @@ export const routes = [
       permission: 'park:enterprise',
       meta: { title: '企业管理' },
       component: () => import('@/views/Park/Enterprise/index')
+    },
+    {
+      path: 'wuyefei',
+      permission: 'park:wuyefei',
+      meta: {
+        title: '物业费管理', icon: 'el-icon-wallet'
+      },
+      component: () => import('@/views/Park/wuyefei/index')
     }]
   },
-
+  {
+    path: '/car/addMonthCard',
+    component: () => import('@/views/Car/CarCard/addMothCard')
+  },
   {
     path: '/parking',
     component: Layout,
@@ -60,7 +71,8 @@ export const routes = [
       permission: 'parking:card',
       component: () => import('@/views/Car/CarCard'),
       meta: { title: '月卡管理' }
-    }, {
+    },
+    {
       path: 'pay',
       permission: 'parking:payment',
       component: () => import('@/views/Car/CarPay'),

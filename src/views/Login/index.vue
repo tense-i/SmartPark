@@ -3,27 +3,27 @@
     <div class="bg" />
     <div class="box">
       <div class="title">智慧园区-登录</div>
-      <el-form ref="form">
+      <el-form ref="form" :model="formData" :rules="rules">
         <el-form-item
           label="账号"
           prop="username"
         >
-          <el-input />
+          <el-input v-model="formData.username" />
         </el-form-item>
 
         <el-form-item
           label="密码"
           prop="password"
         >
-          <el-input />
+          <el-input v-model="formData.password" />
         </el-form-item>
 
         <el-form-item prop="remember">
-          <el-checkbox>记住我</el-checkbox>
+          <el-checkbox v-model="formData.remember">记住我</el-checkbox>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" class="login_btn">登录</el-button>
+          <el-button type="primary" class="login_btn" @click="doLogin()">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -31,12 +31,62 @@
 </template>
 
 <script>
-
+const FORMDATA_KEY = 'formData'
 export default {
-  name: 'Login'
+  name: 'Login',
+  data() {
+    return {
+      formData: {
+        username: '',
+        password: '',
+        remember: false
+      },
+      rules: {
+        // 使用正则表达式验证
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: '用户名至少4个字符，最多16个字符，且只能是字母、数字、下划线、减号', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { pattern: /^[a-zA-Z0-9_-]{6,18}$/, message: '密码至少6个字符，最多18个字符，且只能是字母、数字、下划线、减号', trigger: 'blur' }
+        ]
+      }
+    }
+  },
+  mounted() {
+    // 从localStorage中获取数据
+    const formData = JSON.parse(localStorage.getItem(FORMDATA_KEY))
+    if (formData) {
+      this.formData.username = formData.username
+      this.formData.password = formData.password
+    }
+  },
+  methods: {
+    doLogin() {
+      console.log(this.formData)
+      const { username, password, remember } = this.formData
+      this.$refs.form.validate(async(valid) => {
+        if (!valid) return
 
+        debugger
+        await this.$store.dispatch('user/userLoginAction', { username, password })
+        if (remember) {
+          localStorage.setItem(FORMDATA_KEY, JSON.stringify({ username, password }))
+        } else {
+          localStorage.removeItem(FORMDATA_KEY)
+        }
+        // 获取redirect参数、上次访问的页面
+        const redirect = this.$route.query.redirect
+        if (redirect) {
+          this.$router.push(redirect)
+        } else {
+          this.$router.push({ path: '/' })
+        }
+      })
+    }
+  }
 }
-
 </script>
 
 <style scoped lang="scss">

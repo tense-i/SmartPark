@@ -27,7 +27,18 @@ export default {
   methods: {
     // 退出登录
     logout() {
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      debugger
+      // element-ui的MessageBox
+      this.$confirm('确定退出登录吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await this.$store.commit('user/clearUserToken')
+        this.$router.push({ path: `/login?redirect=${this.$route.fullPath}` })
+      }).catch(() => {
+        console.log('取消退出登录')
+      })
     }
   }
 }

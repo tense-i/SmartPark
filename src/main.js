@@ -11,6 +11,8 @@ import store from './store'
 
 import router from './router'
 
+import '@/utils/pemissions' // permission control
+
 // 注册svg
 import '@/icons'
 
