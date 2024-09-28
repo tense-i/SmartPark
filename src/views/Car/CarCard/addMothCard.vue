@@ -65,7 +65,8 @@
 </template>
 
 <script>
-import {createCardAPI, getCardDetailAPI, updateCardAPI} from '@/api/card'
+import { createCardAPI, getCardDetailAPI, updateCardAPI } from '@/api/card'
+
 export default {
   name: 'CarCardAdd',
   data() {
@@ -123,7 +124,11 @@ export default {
           { required: true, message: '请输入有效日期', trigger: 'blur' }
         ],
         payAmount: [
-          { required: true, message: '请输入支付金额', trigger: 'blur' }, { type: 'number', message: '支付金额必须是数字', trigger: 'blur' }
+          { required: true, message: '请输入支付金额', trigger: 'blur' }, {
+            type: 'number',
+            message: '支付金额必须是数字',
+            trigger: 'blur'
+          }
         ],
         payType: [
           { required: true, message: '请输入支付方式', trigger: 'blur' }
@@ -132,6 +137,7 @@ export default {
     }
   },
   mounted() {
+    this.id = this.$route.query.id
     if (this.id) {
       this.getCardDetail()
     }
@@ -150,14 +156,17 @@ export default {
                 ...this.carInfoForm,
                 ...this.payInfoForm,
                 // 单独处理时间
-                cardStartDate: this.feeForm.payTime[0],
-                cardEndDate: this.feeForm.payTime[1]
+                cardStartDate: this.payInfoForm
+                  .effectiveDate[0],
+                cardEndDate: this.payInfoForm.effectiveDate[1]
               }
               // 删除多余字段
               delete payLoad.effectiveDate
               if (this.id) {
                 await updateCardAPI(payLoad)
-              } else { await createCardAPI(payLoad) }
+              } else {
+                await createCardAPI(payLoad)
+              }
               this.$message({
                 message: '添加成功',
                 type: 'success'
@@ -211,7 +220,8 @@ export default {
       span {
         margin-right: 4px;
       }
-      .arrow{
+
+      .arrow {
         cursor: pointer;
       }
     }
@@ -248,8 +258,9 @@ export default {
         }
       }
     }
-    .preview{
-      img{
+
+    .preview {
+      img {
         width: 100px;
       }
     }

@@ -20,11 +20,13 @@
     <!-- 新增删除操作区域 -->
     <div class="create-container">
       <el-button type="primary" @click="$router.push('/car/addMonthCard')">添加月卡</el-button>
-      <el-button>批量删除</el-button>
+      <el-button @click="deleteSelectedAll">批量删除</el-button>
     </div>
     <!-- 表格区域 -->
     <template>
-      <el-table style="width: 100%" :data="cardList">
+      <el-table style="width: 100%" :data="cardList" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" />
+
         <el-table-column type="index" label="序号" />
         <el-table-column label="车主名称" prop="personName" />
         <el-table-column label="联系方式" prop="phoneNumber" />
@@ -37,7 +39,7 @@
             <el-button size="mini" type="text">续费</el-button>
             <el-button size="mini" type="text">查看</el-button>
             <el-button size="mini" type="text" @click="editCard(scope.row.id)">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="deleteCard(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -82,7 +84,7 @@
 </template>
 
 <script>
-import { getCardListAPI } from '@/api/card'
+import { deleteCardAPI, getCardListAPI } from '@/api/card'
 
 export default {
   data() {
@@ -100,7 +102,8 @@ export default {
         { id: 1, name: '已过期' }
       ],
       cardList: [],
-      total: 0
+      total: 0,
+      selectedList: []
     }
   },
   created() {
@@ -125,11 +128,72 @@ export default {
       this.params.page = page
       this.getCardList()
     },
+    editCard(id) {
+      console.log(id)
+      debugger
+      this.$router.push({
+        path: '/car/addMonthCard',
+        query: {
+          id
+        }
+      })
+    },
     searchCarList() {
       debugger
       console.log(this.params)
       this.params.page = 1
       this.getCardList()
+    },
+    async deleteCard(id) {
+      this.$confirm('是否删除该月卡？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await deleteCardAPI(id)
+        await this.getCardList()
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    handleSelectionChange(val) {
+      console.log(val)
+      this.selectedList = val
+    },
+    deleteSelectedAll() {
+      if (this.selectedList.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择要删除的月卡'
+        })
+        return
+      }
+      this.$confirm('是否删除选中的月卡？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        var ids = this.selectedList.map(item => item.id).join(',')
+        console.log(ids)
+        await deleteCardAPI(ids)
+        await this.getCardList()
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     }
   }
 }
@@ -146,22 +210,27 @@ export default {
   align-items: center;
   border-bottom: 1px solid rgb(237, 237, 237, .9);
   padding-bottom: 20px;
+
   .search-main {
     width: 220px;
     margin-right: 10px;
   }
-  .search-btn{
-    margin-left:20px;
+
+  .search-btn {
+    margin-left: 20px;
   }
 }
-.create-container{
+
+.create-container {
   margin: 10px 0px;
 }
-.page-container{
-  padding:4px 0px;
+
+.page-container {
+  padding: 4px 0px;
   text-align: right;
 }
-.form-container{
-  padding:0px 80px;
+
+.form-container {
+  padding: 0px 80px;
 }
 </style>

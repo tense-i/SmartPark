@@ -32,3 +32,10 @@ export function updateCardAPI(data) {
     data
   })
 }
+
+export function deleteCardAPI(ids) {
+  return request({
+    url: `/parking/card/${ids}`,
+    method: 'DELETE'
+  })
+}
