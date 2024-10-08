@@ -57,6 +57,10 @@ export const routes = [
     component: () => import('@/views/Car/CarCard/addMothCard')
   },
   {
+    path: '/park/enterprise/add',
+    component: () => import('@/views/Park/Enterprise/addEnterprise')
+  },
+  {
     path: '/parking',
     component: Layout,
     permission: 'parking',

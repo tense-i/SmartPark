@@ -25,6 +25,7 @@ export function getCardDetailAPI(id) {
   })
 }
 
+// 更新月卡
 export function updateCardAPI(data) {
   return request({
     url: '/parking/card/edit',

@@ -3,15 +3,15 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">企业名称：</div>
-      <el-input clearable placeholder="请输入内容" class="search-main" />
-      <el-button type="primary">查询</el-button>
+      <el-input v-model="searchEnterpriseName" clearable placeholder="请输入内容" class="search-main" />
+      <el-button type="primary" @click="findEnterpriseByName">查询</el-button>
     </div>
     <div class="create-container">
-      <el-button type="primary">添加企业</el-button>
+      <el-button type="primary" @click="addEnterprise">添加企业</el-button>
     </div>
     <!-- 表格区域 -->
     <div class="table">
-      <el-table style="width: 100%" :data="[]">
+      <el-table style="width: 100%" :data="enterpriseList">
         <el-table-column type="index" label="序号" />
         <el-table-column label="企业名称" width="320" prop="name" />
         <el-table-column label="联系人" prop="contact" />
@@ -31,12 +31,67 @@
     </div>
     <div class="page-container">
       <el-pagination
+        background
         layout="total, prev, pager, next"
+        :page-size="params.pageSize"
+        :total="total"
+        @current-change="handleCurrentChange"
       />
     </div>
   </div>
 </template>
 
+<script>
+import { getEnterpriseListAPI } from '@/api/enterprise'
+
+export default {
+  name: 'Enterprise',
+  data() {
+    return {
+      total: 0,
+      searchEnterpriseName: '',
+      params: {
+        pageSize: 10,
+        pageNum: 1,
+        name: null
+      },
+      enterprise: {
+        name: '',
+        contact: '',
+        contactNumber: ''
+      },
+      enterpriseList: []
+    }
+  },
+  created() {
+    this.getEnterpriseList()
+  },
+  methods: {
+    handleCurrentChange(val) {
+      this.params.pageNum = val
+      // 重新获取数据
+      this.getEnterpriseList()
+    },
+    async getEnterpriseList() {
+      await getEnterpriseListAPI(this.params).then(res => {
+        this.enterpriseList = res.data.rows
+        console.log(this.enterpriseList)
+        debugger
+        this.total = res.data.total
+      })
+    },
+    findEnterpriseByName() {
+      this.params.name = this.searchEnterpriseName
+      console.log(this.params.name)
+      debugger
+      this.getEnterpriseList()
+    },
+    addEnterprise() {
+      this.$router.push('/park/enterprise/add')
+    }
+  }
+}
+</script>
 <style lang="scss" scoped>
 .department-container {
   padding: 10px;
