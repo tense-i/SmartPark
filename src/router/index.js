@@ -55,9 +55,13 @@ export const routes = [
   {
     path: '/car/addMonthCard',
     component: () => import('@/views/Car/CarCard/addMothCard')
+  }, {
+    path: '/exterpriseDetail/:id',
+    component: () => import('@/views/Park/Enterprise/detailEnterprise')
   },
   {
-    path: '/park/enterprise/add',
+    // 匹配/park/enterprise/add及/park/enterprise/add/:id
+    path: '/park/enterprise/add/:id?',
     component: () => import('@/views/Park/Enterprise/addEnterprise')
   },
   {

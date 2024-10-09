@@ -4,7 +4,7 @@
       <div class="left">
         <span class="arrow" @click="$router.back()"><i class="el-icon-arrow-left" />返回</span>
         <span>|</span>
-        <span>添加企业</span>
+        <span>{{ id ? '编辑' : '添加' }}企业</span>
       </div>
       <div class="right">
         黑马程序员
@@ -40,7 +40,16 @@
             <el-form-item label="联系电话" prop="name">
               <el-input v-model="addForm.contactNumber" />
             </el-form-item>
-            <el-form-item label="营业执照" prop="name" />
+            <el-form-item label="营业执照">
+              <el-upload
+                action="#"
+                :http-request="uploadBusinessLicenseRequest"
+                :before-upload="beforeUpload"
+              >
+                <el-button size="small" type="primary">点击上传</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+              </el-upload>
+            </el-form-item>
           </el-form>
         </div>
       </div>
@@ -56,7 +65,8 @@
 </template>
 
 <script>
-import { addEnterpriseAPI, getIndustryListAPI } from '@/api/enterprise'
+import { addEnterpriseAPI, getIndustryListAPI, getEnterpriseDetailAPI, updateEnterpriseAPI } from '@/api/enterprise'
+import { uploadAPI } from '@/api/public'
 export default {
   data() {
     return {
@@ -83,32 +93,84 @@ export default {
         ],
         industryCode: [
           { required: true, message: '请输入所在行业', trigger: 'blur' }
+        ],
+        businessLicenseUrl: [
+          { required: true, message: '请上传营业执照', trigger: 'blur' }
+        ],
+        contactNumber: [
+          { required: true, message: '请输入联系电话', trigger: 'blur' },
+          { pattern: /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1589]))\d{8}$/, message: '请输入正确的联系电话', trigger: 'blur' }
         ]
       }
 
     }
   },
+  computed: {
+    id() {
+      return this.$route.params.id
+    }
+  },
   mounted() {
+    if (this.id) {
+      this.getEnterpriseDetail()
+      return
+    }
     this.getIndustryList()
-    console.log(this.industryList)
   },
   methods: {
     resetForm() {
       this.$refs.ruleForm.resetFields()
     },
     handleSubmit() {
-      this.$refs.ruleForm.validate(valid => {
+      this.$refs.ruleForm.validate(async valid => {
         if (!valid) return
         console.log(this.addForm)
-        addEnterpriseAPI(this.addForm).then(res => {
-          console.log(res)
-        })
+        if (this.id) {
+          await updateEnterpriseAPI(this.addForm).then(res => {
+            this.$message.info(res.msg)
+          })
+        } else {
+          await addEnterpriseAPI(this.addForm).then(res => {
+            this.$message.info(res.msg)
+          })
+        } this.$router.back()
       })
     },
     async getIndustryList() {
       await getIndustryListAPI().then(res => {
         this.industryList = res.data
       })
+    },
+    async uploadBusinessLicenseRequest(data) {
+      const file = data.file
+      // 构造表单数据
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'businessLicense')
+      // 上传营业执照
+      const res = await uploadAPI(formData)
+      // 赋值表单数据
+      this.addForm.businessLicenseId = res.data.id
+      this.addForm.businessLicenseUrl = res.data.url
+      // 校验营业执照
+      this.$refs.ruleForm.validateField('businessLicenseId')
+    },
+    beforeUpload(file) {
+      console.log(file.type)
+      const allowedExtensions = ['image/jpg', 'image/png', 'image/jpg', 'image/jpeg'].includes(file.type)
+      const isLt5M = file.size / 1024 / 1024 < 5
+      if (!allowedExtensions) {
+        this.$message.error('上传图片只能是 JPG/PNG/JPEG 格式!')
+      }
+      if (!isLt5M) {
+        this.$message.error('上传图片大小不能超过 5MB!')
+      }
+      return allowedExtensions && isLt5M
+    },
+    async getEnterpriseDetail() {
+      const res = await getEnterpriseDetailAPI(this.id)
+      const { businessLicenseId, businessLicenseUrl, contact, contactNumber, industryCode, legalPerson, name, registeredAddress } = res.data
+      this.addForm = { businessLicenseId, businessLicenseUrl, contact, contactNumber, industryCode, legalPerson, name, registeredAddress }
     }
   }
 }

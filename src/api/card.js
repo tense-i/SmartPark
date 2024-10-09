@@ -40,3 +40,13 @@ export function deleteCardAPI(ids) {
     method: 'DELETE'
   })
 }
+
+// 租赁合同
+export function uploadRentContractAPI(data) {
+  return request({
+    url: '/park/enterprise/rentt',
+    method: 'POST',
+    data
+  })
+}
+

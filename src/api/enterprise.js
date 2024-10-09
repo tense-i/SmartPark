@@ -24,20 +24,11 @@ export function updateEnterpriseAPI(data) {
 }
 
 // 删除企业
-export function deleteEnterpriseAPI(data) {
+export function deleteEnterpriseAPI(id) {
   return request({
-    url: '/park/enterprise',
-    method: 'DELETE',
-    data
-  })
-}
+    url: `/park/enterprise/${id}`,
+    method: 'DELETE'
 
-// 获取企业详情
-export function getEnterpriseDetailAPI(data) {
-  return request({
-    url: '/park/enterprise',
-    method: 'GET',
-    data
   })
 }
 
@@ -69,5 +60,47 @@ export function uploadBusinessLicenseAPI(data) {
     url: '/park/enterprise/uploadBusinessLicense',
     method: 'POST',
     data
+  })
+}
+
+// 获取企业详情
+export function getEnterpriseDetailAPI(id) {
+  return request({
+    url: `/park/enterprise/${id}`,
+    method: 'GET'
+  })
+}
+
+// 添加租赁合同
+export function addRentContractAPI(data) {
+  return request({
+    url: '/park/enterprise/rent',
+    method: 'POST',
+    data
+  })
+}
+
+// 获取租赁合同列表
+export function getRentContractListAPI(data) {
+  return request({
+    url: '/park/enterprise/rent',
+    method: 'GET',
+    data
+  })
+}
+
+// 根据id获取租赁合同
+export function getRentContractByIdAPI(id) {
+  return request({
+    url: `/park/enterprise/rent/${id}`,
+    method: 'GET'
+  })
+}
+
+// 退租
+export function rentOutByIdAPI(id) {
+  return request({
+    url: `/park/enterprise/rent/${id}`,
+    method: 'PUT'
   })
 }
